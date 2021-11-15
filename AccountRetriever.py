@@ -35,6 +35,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if not data:
                 break
             datastring = str(data)
-            datastring = datastring.replace('b\'', '').replace("\\n\'", '')
+            print (datastring)
+            datastring = datastring.replace('b\'', '').replace("\\n\'", '').replace('\'', '')
             print (datastring)
             zero = getUserID(datastring)
