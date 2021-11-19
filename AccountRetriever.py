@@ -7,6 +7,7 @@ import json
 bearer_token = "AAAAAAAAAAAAAAAAAAAAAL2YVQEAAAAA%2Fad7ErJJAFH0S%2FEtYLnD%2FzGvCm0%3Dxcrv7RU1UCdBlQjq59xg0UEUr113FMURapS37c9prll3pfkkmD"
 standardHeader = "Bearer $BEARER_TOKEN"
 UserIdRequest = "https://api.twitter.com/2/users/by/username/TwitterDev"
+FollowingRequest= "https://api.twitter.com/2/users/:id/following"
 
 HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT =  12345       # Port to listen on (non-privileged ports are > 1023)
@@ -14,9 +15,17 @@ PORT =  12345       # Port to listen on (non-privileged ports are > 1023)
 # Input Twitter Handle to retrieve that account's ID from Twitter APIs
 def getUserID(username):
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
-
     print('Getting ID for username: ' + str(username))
     url = UserIdRequest.replace('TwitterDev', username)
+    header = standardHeader.replace('$BEARER_TOKEN', bearer_token)
+    response = requests.get(url, headers={"Authorization":header})
+    print(response.json())
+    return response.json()
+
+def getFollowingList(userId):
+    headers = {"Authorization": "Bearer {}".format(bearer_token)}
+    print('Getting Following List for user: ' + str(userId))
+    url = FollowingRequest.replace(':id', str(userId))
     header = standardHeader.replace('$BEARER_TOKEN', bearer_token)
     response = requests.get(url, headers={"Authorization":header})
     print(response.json())
@@ -38,4 +47,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print (datastring)
             datastring = datastring.replace('b\'', '').replace("\\n\'", '').replace('\'', '')
             print (datastring)
-            zero = getUserID(datastring)
+            userIdInJson = getUserID(datastring)
+            followingListInJson = getFollowingList(169686021) #Uses Kanye West as example
