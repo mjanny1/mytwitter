@@ -8,6 +8,7 @@ bearer_token = "AAAAAAAAAAAAAAAAAAAAAL2YVQEAAAAA%2Fad7ErJJAFH0S%2FEtYLnD%2FzGvCm
 standardHeader = "Bearer $BEARER_TOKEN"
 UserIdRequest = "https://api.twitter.com/2/users/by/username/TwitterDev"
 FollowingRequest= "https://api.twitter.com/2/users/:id/following"
+FollowingListFile= "./FollowingTable.csv"
 
 HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT =  12345       # Port to listen on (non-privileged ports are > 1023)
@@ -19,7 +20,7 @@ def getUserID(username):
     url = UserIdRequest.replace('TwitterDev', username)
     header = standardHeader.replace('$BEARER_TOKEN', bearer_token)
     response = requests.get(url, headers={"Authorization":header})
-    print(response.json())
+    #print(response.json())
     return response.json()
 
 def getFollowingList(userId):
@@ -28,8 +29,24 @@ def getFollowingList(userId):
     url = FollowingRequest.replace(':id', str(userId))
     header = standardHeader.replace('$BEARER_TOKEN', bearer_token)
     response = requests.get(url, headers={"Authorization":header})
-    print(response.json())
+    #print(response.json())
     return response.json()
+
+def saveFollowingList(UserId, UserName, UserHandle, FollowingListDict):
+    with open(FollowingListFile, "a") as followingTable:
+        for f in range(len(followingListDict['data'])):
+            print(followingListDict['data'][f]['id'])
+            followingId     = followingListDict['data'][f]['id']
+            followingName   = followingListDict['data'][f]['name']
+            followingHandle = followingListDict['data'][f]['username']
+            followingTable.write(UserId          + "," +
+                                 UserName        + "," +
+                                 UserHandle      + "," + 
+                                 followingId     + "," + 
+                                 followingName   + "," + 
+                                 followingHandle + "\n")
+    return 0
+    
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
@@ -44,8 +61,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if not data:
                 break
             datastring = str(data)
-            print (datastring)
             datastring = datastring.replace('b\'', '').replace("\\n\'", '').replace('\'', '')
-            print (datastring)
-            userIdInJson = getUserID(datastring)
-            followingListInJson = getFollowingList(169686021) #Uses Kanye West as example
+            print ("Message Received: \"" + datastring + "\"")
+            userIdDict = getUserID(datastring)
+            print (userIdDict['data']['id'])
+
+            userId     = userIdDict['data']['id']
+            userName   = userIdDict['data']['name']
+            userHandle = userIdDict['data']['username']
+
+            followingListDict = getFollowingList(userId) 
+            print ("User has " + str(len(followingListDict['data'])) + " followers")
+            zero = saveFollowingList(userId, userName, userHandle, followingListDict)
+            #print (followingListDict['data']['id[]'])
+            
+            #for s in range(len(students)):
+            #if students[s]["name"] == to_find:
+            #print("The age of {} is {}.".format(students[s]["name"], students[s]["age"]))
