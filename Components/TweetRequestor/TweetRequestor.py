@@ -15,6 +15,8 @@ standardHeader = "Bearer $BEARER_TOKEN"
 header = standardHeader.replace('$BEARER_TOKEN', bearer_token)
 TweetRequest = "https://api.twitter.com/2/users/user_id/tweets"
 FollowingListFile= "../UserPreferenceDatabase/FollowingTable.csv"
+TweetTableFile = "../TweetDatabase/TweetTable.csv"
+maxNumberOfAccounts = 10 #Use this to not breach the request limit for Twitter APIs
 
 def request_public_metrics(tweet_id):
     tweet_fields = "tweet.fields=public_metrics,author_id,created_at"
@@ -25,47 +27,51 @@ def request_public_metrics(tweet_id):
     print(tweetMetrics)
     return tweetMetrics
 
+def store_tweets(tweetStats):
+    with open(TweetTableFile, "a") as tweetTable:
+        for f in range(len(tweetStats['data'])):
+            tweetId        = str(tweetStats['data'][f]['id'])
+            tweetText      = str(tweetStats['data'][f]['text'])
+            tweetAuthor    = str(tweetStats['data'][f]['author_id'])
+            tweetTime      = str(tweetStats['data'][f]['created_at'])
+            tweetLikes     = str(tweetStats['data'][f]['public_metrics']['like_count'])
+            tweetRetweets  = str(tweetStats['data'][f]['public_metrics']['retweet_count'])
+            #Remove commas from text for csv storage purposes
+            tweetText = tweetText.replace(',', '')
+            #Remove newlines for csv storage purposes 
+            tweetText = tweetText.replace('\n', '')
+            tweetTable.write(tweetId       + "," +
+                             tweetAuthor   + "," +
+                             tweetTime     + "," + 
+                             tweetLikes    + "," + 
+                             tweetRetweets + "," +
+                             tweetText     + "\n") 
+    tweetTable.close()
+    return 0
+
 def parse_tweets(tweetList):
+    print ("Processing " + str(range(len(tweetList['data']))) + " tweets...")
     for f in range(len(tweetList['data'])):
         tweetId     = tweetList['data'][f]['id']
         tweetText   = tweetList['data'][f]['text']
-        print('Tweet ID: ' + str(tweetId) + '. Tweet Text: ' + str(tweetText))
-        request_public_metrics(tweetId)
-
-#def store_tweets(tweetList):
-
+        tweetStats = request_public_metrics(tweetId)
+        store_tweets(tweetStats)
 
 print('Reading Following Table...')
 df = pd.read_csv(FollowingListFile) 
 df1 = df['FollowingId']
    
 print('Retrieving Tweets from Accounts Listed')
+
+n=1
 for key, followingId in df1.iteritems():
     print(followingId)
     url = TweetRequest.replace('user_id', str(followingId))
     accountTweetList = requests.get(url, headers={"Authorization":header}).json()
     print(accountTweetList)
     parse_tweets(accountTweetList)
-    break
-
-#            print ("User has " + str(len(followingListDict['data'])) + " followers")
-#    if 'errors' not in response.keys():
-#        num_users += 1
-#        response = response['data']
-#        for tweet in response:
-#            num_tweets += 1
-#            author_info = [following_user_dict[following_user_id]['name'], following_user_dict[following_user_id]['username'], following_user_dict[following_user_id]['verified']]
-#            csvWriter.writerow([tweet[key] for key in good_keys]+author_info)
-#            print(f'Created timeline_{target_user_id}.csv with {num_tweets} tweets from {num_users} users') 
-#            tweets_file.close()
-
-
-
-#        if 'errors' not in response.keys():
-#            num_users += 1
-#            response = response['data']
-#            for tweet in response:
-#                num_tweets += 1
-#                author_info = [following_user_dict[following_user_id]['name'], following_user_dict[following_user_id]['username'], following_user_dict[following_user_id]['verified']]
-#                csvWriter.writerow([tweet[key] for key in good_keys]+author_info)
+    if n > maxNumberOfAccounts:
+        break
+    else:
+        n=n+1
 
