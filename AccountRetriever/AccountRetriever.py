@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+Component Name: AccountRetriever
+
+Component Purpose: This component receives the name of the new MyTwitter user's Twitter handle and retrieves a list of the accounts that person follows. It then saves the list of accounts to the Following Table in the User Preference Database
+"""
 
 import requests
 import socket

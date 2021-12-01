@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+Test Tool Name: AccountSenderTool
+
+Test Tool Purpose: This test tool is supposed to mimic the Twitter handle of a new MyTwitter user being sent to the AccountRetriever by the UI Controller.
+"""
 
 import socket
 
