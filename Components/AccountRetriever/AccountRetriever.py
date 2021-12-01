@@ -13,7 +13,7 @@ bearer_token = "AAAAAAAAAAAAAAAAAAAAAL2YVQEAAAAA%2Fad7ErJJAFH0S%2FEtYLnD%2FzGvCm
 standardHeader = "Bearer $BEARER_TOKEN"
 UserIdRequest = "https://api.twitter.com/2/users/by/username/TwitterDev"
 FollowingRequest= "https://api.twitter.com/2/users/:id/following"
-FollowingListFile= "./FollowingTable.csv"
+FollowingListFile= "../UserPreferenceDatabase/FollowingTable.csv"
 
 HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT =  12345       # Port to listen on (non-privileged ports are > 1023)
