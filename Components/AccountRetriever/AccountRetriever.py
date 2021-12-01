@@ -44,6 +44,10 @@ def saveFollowingList(UserId, UserName, UserHandle, FollowingListDict):
             followingId     = followingListDict['data'][f]['id']
             followingName   = followingListDict['data'][f]['name']
             followingHandle = followingListDict['data'][f]['username']
+            #Remove any commas for csv storage purposes
+            followingName = followingName.replace(',', '')
+            #Remove newlines for csv storage purposes
+            followingName = followingName.replace('\n', '')
             followingTable.write(UserId          + "," +
                                  UserName        + "," +
                                  UserHandle      + "," + 
